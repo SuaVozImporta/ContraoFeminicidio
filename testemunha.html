@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fui Testemunha — Voz & Vida</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="pages.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ===== TESTEMUNHA PAGE EXTRAS ===== */
+    .witness-alert {
+      background: linear-gradient(135deg, #1a0e14, #2d1218);
+      border: 2px solid rgba(232,84,122,0.5);
+      border-radius: var(--radius);
+      padding: 28px 36px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 48px;
+    }
+    .witness-alert-icon { font-size: 42px; flex-shrink: 0; }
+    .witness-alert h3 { font-family: var(--font-display); font-size: 22px; color: var(--rose-light); margin-bottom: 8px; }
+    .witness-alert p { font-size: 15px; color: rgba(255,255,255,0.75); line-height: 1.7; }
+
+    /* Scenario cards */
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+    .scenario-card {
+      border-radius: var(--radius);
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid rgba(232,84,122,0.15);
+      background: white;
+      transition: var(--transition);
+    }
+    .scenario-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+    .scenario-header {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .scenario-icon { font-size: 32px; }
+    .scenario-header h3 { font-family: var(--font-display); font-size: 18px; color: white; line-height: 1.2; }
+    .sc-red .scenario-header    { background: linear-gradient(135deg, #8b0000, #c23160); }
+    .sc-orange .scenario-header { background: linear-gradient(135deg, #7a3500, #c26020); }
+    .sc-purple .scenario-header { background: linear-gradient(135deg, #3a0060, #6b2fa0); }
+    .sc-blue .scenario-header   { background: linear-gradient(135deg, #003a6b, #1060a0); }
+    .sc-green .scenario-header  { background: linear-gradient(135deg, #0d3a1a, #2a7050); }
+    .scenario-body { padding: 20px 24px; }
+    .scenario-body p { font-size: 14px; color: var(--text-light); margin-bottom: 14px; line-height: 1.6; }
+    .scenario-steps { list-style: none; }
+    .scenario-steps li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 0;
+      font-size: 14px;
+      color: var(--text);
+      border-bottom: 1px solid rgba(232,84,122,0.07);
+    }
+    .scenario-steps li:last-child { border: none; }
+    .ss-num {
+      width: 22px; height: 22px;
+      background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+      color: white;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* DO / DON'T split */
+    .do-dont-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      max-width: 940px;
+      margin: 0 auto;
+    }
+    .do-card, .dont-card {
+      border-radius: var(--radius);
+      padding: 32px;
+    }
+    .do-card   { background: linear-gradient(160deg, #0d2a18, #1a4028); border: 1px solid rgba(80,200,120,0.25); }
+    .dont-card { background: linear-gradient(160deg, #2a0d0d, #401818); border: 1px solid rgba(220,80,80,0.25); }
+    .do-card h3   { font-family: var(--font-display); font-size: 22px; color: #7ee8a2; margin-bottom: 20px; }
+    .dont-card h3 { font-family: var(--font-display); font-size: 22px; color: #f87a7a; margin-bottom: 20px; }
+    .do-list, .dont-list { list-style: none; }
+    .do-list li, .dont-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 10px 0;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      line-height: 1.5;
+    }
+    .do-list li:last-child, .dont-list li:last-child { border: none; }
+    .do-list li   { color: rgba(255,255,255,0.8); }
+    .dont-list li { color: rgba(255,255,255,0.8); }
+    .do-icon   { color: #7ee8a2; font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .dont-icon { color: #f87a7a; font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* Myth/truth cards */
+    .myth-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .myth-card {
+      background: white;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid rgba(232,84,122,0.1);
+    }
+    .myth-top {
+      background: linear-gradient(135deg, #fff0f3, #ffe8ec);
+      border-bottom: 1px solid rgba(232,84,122,0.12);
+      padding: 16px 24px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .myth-badge { font-size: 11px; font-weight: 700; color: #b00030; text-transform: uppercase; letter-spacing: 0.1em; background: rgba(180,0,50,0.1); padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+    .myth-top p { font-size: 14px; color: var(--text); font-style: italic; line-height: 1.5; }
+    .myth-bottom {
+      padding: 16px 24px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .truth-badge { font-size: 11px; font-weight: 700; color: #007040; text-transform: uppercase; letter-spacing: 0.1em; background: rgba(0,120,60,0.1); padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+    .myth-bottom p { font-size: 14px; color: var(--text-light); line-height: 1.6; }
+
+    /* Legal witness block */
+    .legal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .legal-card {
+      background: var(--cream);
+      border: 1px solid rgba(232,84,122,0.1);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: var(--transition);
+    }
+    .legal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .legal-icon { font-size: 34px; margin-bottom: 12px; }
+    .legal-card h4 { font-family: var(--font-display); font-size: 18px; color: var(--dark); margin-bottom: 10px; }
+    .legal-card p { font-size: 14px; color: var(--text-light); line-height: 1.7; }
+    .legal-highlight {
+      margin-top: 10px;
+      background: rgba(232,84,122,0.07);
+      border-left: 3px solid var(--rose);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Quick action banner */
+    .quick-action-bar {
+      background: linear-gradient(135deg, var(--rose-dark), var(--rose));
+      border-radius: var(--radius);
+      padding: 28px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .qab-text h3 { font-family: var(--font-display); font-size: 22px; color: white; margin-bottom: 6px; }
+    .qab-text p { font-size: 15px; color: rgba(255,255,255,0.8); }
+    .qab-numbers { display: flex; gap: 12px; flex-wrap: wrap; }
+    .qab-num {
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 12px;
+      padding: 12px 20px;
+      color: white;
+      text-align: center;
+      transition: var(--transition);
+      text-decoration: none;
+    }
+    .qab-num:hover { background: rgba(255,255,255,0.25); transform: translateY(-3px); }
+    .qab-num strong { display: block; font-family: var(--font-display); font-size: 28px; line-height: 1; }
+    .qab-num span { font-size: 11px; opacity: 0.85; }
+
+    /* Witness types section */
+    .witness-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px; }
+    .wtype-card {
+      background: white;
+      border: 1px solid rgba(232,84,122,0.12);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    .wtype-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .wtype-icon { font-size: 40px; margin-bottom: 12px; }
+    .wtype-card h4 { font-family: var(--font-display); font-size: 16px; color: var(--dark); margin-bottom: 8px; }
+    .wtype-card p { font-size: 13px; color: var(--text-light); line-height: 1.5; }
+
+    /* Emotional support note */
+    .self-care-box {
+      background: linear-gradient(135deg, #2a1a2e, #1a0e1c);
+      border: 1px solid rgba(180,100,230,0.3);
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .self-care-box h3 { font-family: var(--font-display); font-size: 22px; color: #d4aaff; margin-bottom: 12px; }
+    .self-care-box p { font-size: 15px; color: rgba(255,255,255,0.75); line-height: 1.8; margin-bottom: 14px; }
+    .self-care-box p:last-child { margin: 0; }
+
+    @media (max-width: 768px) {
+      .do-dont-grid { grid-template-columns: 1fr; }
+      .witness-alert { flex-direction: column; padding: 20px; }
+      .quick-action-bar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="socorro.html" class="sos-btn">
+    <span class="sos-pulse"></span><span class="sos-icon">🆘</span>
+    <span class="sos-label">Preciso de Ajuda</span>
+  </a>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo"><span class="logo-icon">🌸</span><span>Voz <em>&</em> Vida</span></a>
+      <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Início</a></li>
+        <li><a href="direitos.html">Direitos da Mulher</a></li>
+        <li><a href="tecnologia.html">Tecnologia</a></li>
+        <li><a href="casos.html">Casos Notórios</a></li>
+        <li><a href="passos.html">O Que Fazer</a></li>
+        <li><a href="testemunha.html" class="active">Fui Testemunha</a></li>
+        <li><a href="sobre.html">Sobre</a></li>
+        <li><a href="socorro.html" class="nav-sos">Ajuda Urgente</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="page-hero" style="background: linear-gradient(160deg, #150a10, #2a1020);">
+    <span class="page-hero-tag">Guia para Quem Presenciou</span>
+    <h1>Fui <em>Testemunha</em><br>— e agora?</h1>
+    <p>Se você viu, ouviu ou suspeitou de violência contra uma mulher, sua atitude pode salvar uma vida. Aqui está o que fazer, passo a passo, de forma segura.</p>
+  </section>
+
+  <!-- ALERTA INICIAL -->
+  <section class="content-section" style="background: var(--dark);">
+    <div class="container">
+      <div class="witness-alert">
+        <div class="witness-alert-icon">👁️</div>
+        <div>
+          <h3>Você não é obrigada(o) a agir sozinha(o) — mas fazer algo pode mudar tudo</h3>
+          <p>Testemunhas são fundamentais para quebrar o ciclo de violência. A maioria dos casos de feminicídio tinha sinais visíveis que alguém ao redor percebeu. Agir com segurança, denunciar e apoiar a vítima são atitudes que podem evitar uma tragédia. Você não precisa ser herói — precisa saber o que fazer.</p>
+        </div>
+      </div>
+
+      <!-- CALL TO ACTION RÁPIDO -->
+      <div class="quick-action-bar">
+        <div class="qab-text">
+          <h3>Está acontecendo agora?</h3>
+          <p>Se a situação é de risco imediato, ligue já.</p>
+        </div>
+        <div class="qab-numbers">
+          <a href="tel:190" class="qab-num"><strong>190</strong><span>Polícia — Emergência</span></a>
+          <a href="tel:180" class="qab-num"><strong>180</strong><span>Central da Mulher</span></a>
+          <a href="tel:197" class="qab-num"><strong>197</strong><span>Polícia Civil</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUEM É A TESTEMUNHA -->
+  <section class="content-section">
+    <div class="container">
+      <div class="section-header centered">
+        <span class="section-tag">Contextos</span>
+        <h2 class="section-title">Você pode ter presenciado <em>de várias formas</em></h2>
+        <p class="section-sub">Violência contra a mulher pode acontecer em qualquer ambiente. Reconhecer o contexto ajuda a saber como agir.</p>
+      </div>
+
+      <div class="witness-types">
+        <div class="wtype-card">
+          <div class="wtype-icon">🏠</div>
+          <h4>Vizinho(a)</h4>
+          <p>Ouviu gritos, choros, barulho de objetos, ameaças através da parede ou corredor.</p>
+        </div>
+        <div class="wtype-card">
+          <div class="wtype-icon">🚶</div>
+          <h4>Passante na Rua</h4>
+          <p>Presenciou agressão física, perseguição, humilhação pública ou discussão com ameaças.</p>
+        </div>
+        <div class="wtype-card">
+          <div class="wtype-icon">🏢</div>
+          <h4>Colega de Trabalho</h4>
+          <p>Percebeu marcas, mudanças de comportamento, medo, controle excessivo do parceiro.</p>
+        </div>
+        <div class="wtype-card">
+          <div class="wtype-icon">👨‍👩‍👧</div>
+          <h4>Familiar</h4>
+          <p>Conhece a situação da vítima, já viu episódios anteriores ou recebeu confidências.</p>
+        </div>
+        <div class="wtype-card">
+          <div class="wtype-icon">👩‍⚕️</div>
+          <h4>Profissional de Saúde</h4>
+          <p>Atendeu a vítima com lesões incompatíveis com as explicações fornecidas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CENÁRIOS E COMO AGIR -->
+  <section class="content-section" style="background: var(--white);">
+    <div class="container">
+      <div class="section-header centered">
+        <span class="section-tag">Passo a Passo por Situação</span>
+        <h2 class="section-title">O que fazer em <em>cada cenário</em></h2>
+        <p class="section-sub">Cada situação pede uma resposta diferente. Leia o cenário que mais se aproxima do que você viveu.</p>
+      </div>
+
+      <div class="scenario-grid">
+
+        <div class="scenario-card sc-red">
+          <div class="scenario-header">
+            <div class="scenario-icon">🚨</div>
+            <h3>Agressão física em andamento — perigo imediato</h3>
+          </div>
+          <div class="scenario-body">
+            <p>Você está vendo ou ouvindo agressão acontecendo agora. Há risco real de vida.</p>
+            <ul class="scenario-steps">
+              <li><span class="ss-num">1</span><span><strong>Não intervenha fisicamente</strong> — você pode se machucar e piorar a situação.</span></li>
+              <li><span class="ss-num">2</span><span>Ligue <strong>190</strong> imediatamente, mesmo que não tenha certeza.</span></li>
+              <li><span class="ss-num">3</span><span>Descreva ao operador: endereço exato, quantas pessoas, se há armas, sons que ouve.</span></li>
+              <li><span class="ss-num">4</span><span>Se estiver no mesmo local, <strong>grite que já chamou a polícia</strong> — isso pode deter o agressor.</span></li>
+              <li><span class="ss-num">5</span><span>Reúna outras pessoas do entorno — agressor tende a parar na presença de muitos.</span></li>
+              <li><span class="ss-num">6</span><span>Aguarde a polícia e <strong>não permita que o agressor fuja</strong> sem registrar o ocorrido.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="scenario-card sc-orange">
+          <div class="scenario-header">
+            <div class="scenario-icon">🏘️</div>
+            <h3>Vizinho(a): ouço brigas e gritos frequentes</h3>
+          </div>
+          <div class="scenario-body">
+            <p>Você ouve episódios recorrentes, mas não sabe a gravidade real da situação.</p>
+            <ul class="scenario-steps">
+              <li><span class="ss-num">1</span><span>Na dúvida, ligue <strong>190 ou 180</strong>. Não precisa se identificar.</span></li>
+              <li><span class="ss-num">2</span><span>Anote datas e horários dos episódios que ouviu — isso é evidência.</span></li>
+              <li><span class="ss-num">3</span><span>Se conhece a vítima, <strong>aborde-a em momento seguro</strong> — sem o agressor por perto.</span></li>
+              <li><span class="ss-num">4</span><span>Diga com cuidado: "Estou aqui se precisar. Você está bem?" — sem pressionar.</span></li>
+              <li><span class="ss-num">5</span><span>Informe sobre o <strong>180</strong> e ofereça seu número de contato.</span></li>
+              <li><span class="ss-num">6</span><span>Não confronte o agressor diretamente — pode colocar você e a vítima em risco.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="scenario-card sc-purple">
+          <div class="scenario-header">
+            <div class="scenario-icon">💼</div>
+            <h3>Colega de trabalho com sinais de violência</h3>
+          </div>
+          <div class="scenario-body">
+            <p>Você percebe marcas, comportamento com medo, parceiro controlador ou afastamento social.</p>
+            <ul class="scenario-steps">
+              <li><span class="ss-num">1</span><span>Crie um momento privado e pergunte diretamente, com gentileza: "Você está segura em casa?"</span></li>
+              <li><span class="ss-num">2</span><span><strong>Escute sem julgamento</strong> — não questione as escolhas dela ou por que "ainda está lá".</span></li>
+              <li><span class="ss-num">3</span><span>Não compartilhe com outros colegas sem permissão dela — sigilo protege a vítima.</span></li>
+              <li><span class="ss-num">4</span><span>Informe sobre canais: <strong>180, CRAS, DEAM</strong> — mas deixe a decisão com ela.</span></li>
+              <li><span class="ss-num">5</span><span>Comunique ao RH ou gestão se houver política de proteção na empresa.</span></li>
+              <li><span class="ss-num">6</span><span>Ofereça apoio concreto: "Posso ir com você à delegacia se precisar."</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="scenario-card sc-blue">
+          <div class="scenario-header">
+            <div class="scenario-icon">🌐</div>
+            <h3>Violência nas redes sociais ou mensagens</h3>
+          </div>
+          <div class="scenario-body">
+            <p>Você viu mensagens ameaçadoras, posts humilhantes, divulgação de fotos íntimas sem consentimento.</p>
+            <ul class="scenario-steps">
+              <li><span class="ss-num">1</span><span><strong>Tire print com data e hora visíveis</strong> antes que o conteúdo seja deletado.</span></li>
+              <li><span class="ss-num">2</span><span>Denuncie o conteúdo na própria plataforma (Instagram, WhatsApp, etc.).</span></li>
+              <li><span class="ss-num">3</span><span>Se envolver fotos íntimas sem consentimento (<em>revenge porn</em>), ligue para <strong>180</strong> — é crime.</span></li>
+              <li><span class="ss-num">4</span><span>Avise a vítima com cuidado e envie os prints para ela.</span></li>
+              <li><span class="ss-num">5</span><span>Encaminhe as evidências digitais a uma delegacia ou DEAM.</span></li>
+              <li><span class="ss-num">6</span><span>Não compartilhe o conteúdo — isso configura nova vitimização.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="scenario-card sc-green">
+          <div class="scenario-header">
+            <div class="scenario-icon">👭</div>
+            <h3>Amiga ou familiar em relacionamento abusivo</h3>
+          </div>
+          <div class="scenario-body">
+            <p>Alguém próxima está em situação de controle, isolamento, humilhações ou agressões físicas.</p>
+            <ul class="scenario-steps">
+              <li><span class="ss-num">1</span><span>Mantenha o contato — o isolamento é ferramenta do agressor. <strong>Não desapareça.</strong></span></li>
+              <li><span class="ss-num">2</span><span>Evite ultimatos como "ou você sai ou não te ajudo mais" — isso a isola ainda mais.</span></li>
+              <li><span class="ss-num">3</span><span>Ajude a <strong>criar um plano de saída seguro</strong>: documentos, abrigo, dinheiro.</span></li>
+              <li><span class="ss-num">4</span><span>Combine uma <strong>palavra-código</strong>: se ela mandar aquela palavra, você chama ajuda.</span></li>
+              <li><span class="ss-num">5</span><span>Guarde provas que ela te mostrou — prints, fotos de lesões — em local seguro.</span></li>
+              <li><span class="ss-num">6</span><span>Se tiver filhos envolvidos e risco grave, considere acionar o <strong>Conselho Tutelar (136)</strong>.</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FAÇA / NÃO FAÇA -->
+  <section class="content-section" style="background: var(--dark);">
+    <div class="container">
+      <div class="section-header centered">
+        <span class="section-tag" style="color: var(--rose-light)">Condutas</span>
+        <h2 class="section-title" style="color: white;">O que <em>fazer e o que evitar</em></h2>
+        <p class="section-sub" style="color: rgba(255,255,255,0.6);">Atitudes bem-intencionadas podem, sem querer, colocar a vítima em mais risco. Conheça a diferença.</p>
+      </div>
+
+      <div class="do-dont-grid">
+        <div class="do-card">
+          <h3>✅ Faça isso</h3>
+          <ul class="do-list">
+            <li><span class="do-icon">✔</span><span>Ligue 190 ou 180 — você não precisa se identificar para denunciar.</span></li>
+            <li><span class="do-icon">✔</span><span>Registre evidências: fotos de lesões, prints de mensagens, anotações de datas e episódios.</span></li>
+            <li><span class="do-icon">✔</span><span>Ouça a vítima com empatia e sem julgamento. Acredite no que ela conta.</span></li>
+            <li><span class="do-icon">✔</span><span>Informe sobre serviços disponíveis: DEAM, 180, Casa Abrigo, Defensoria.</span></li>
+            <li><span class="do-icon">✔</span><span>Ofereça apoio concreto: guardar documentos dela, acompanhá-la à delegacia.</span></li>
+            <li><span class="do-icon">✔</span><span>Preserve o sigilo — não espalhe a situação sem consentimento da vítima.</span></li>
+            <li><span class="do-icon">✔</span><span>Se for testemunha ocular, registre BO na delegacia — seu depoimento tem valor legal.</span></li>
+            <li><span class="do-icon">✔</span><span>Mantenha contato regular — a presença de pessoas de confiança protege a vítima.</span></li>
+          </ul>
+        </div>
+        <div class="dont-card">
+          <h3>❌ Evite isso</h3>
+          <ul class="dont-list">
+            <li><span class="dont-icon">✖</span><span>Não confronte o agressor diretamente — isso pode provocar reação violenta imediata.</span></li>
+            <li><span class="dont-icon">✖</span><span>Não diga "por que você não vai embora?" — sair é o momento de maior risco para a vítima.</span></li>
+            <li><span class="dont-icon">✖</span><span>Não minimize: "foi só uma briga de casal", "ele bate mas é bom pai" — isso perpetua o ciclo.</span></li>
+            <li><span class="dont-icon">✖</span><span>Não compartilhe fotos, vídeos ou detalhes da situação nas redes sociais.</span></li>
+            <li><span class="dont-icon">✖</span><span>Não culpe a vítima: "você deixou chegar nisso" — a responsabilidade é do agressor.</span></li>
+            <li><span class="dont-icon">✖</span><span>Não dê ultimatos nem corte o contato se ela não agir como você espera.</span></li>
+            <li><span class="dont-icon">✖</span><span>Não entre em imóvel alheio sem autorização — aguarde a polícia.</span></li>
+            <li><span class="dont-icon">✖</span><span>Não prometa segredo absoluto — se houver risco de vida, denunciar é necessário.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MITOS E VERDADES -->
+  <section class="content-section">
+    <div class="container">
+      <div class="section-header centered">
+        <span class="section-tag">Desfazendo equívocos</span>
+        <h2 class="section-title">Mitos que <em>paralisam</em> testemunhas</h2>
+        <p class="section-sub">Esses pensamentos impedem ações que podem salvar vidas. Entenda a realidade.</p>
+      </div>
+
+      <div class="myth-grid">
+        <div class="myth-card">
+          <div class="myth-top">
+            <span class="myth-badge">Mito</span>
+            <p>"Em briga de marido e mulher, não se mete a colher."</p>
+          </div>
+          <div class="myth-bottom">
+            <span class="truth-badge">Verdade</span>
+            <p>Violência doméstica é crime público. O Estado pode e deve agir mesmo sem queixa da vítima. Qualquer pessoa pode e deve denunciar. Ficar em silêncio normaliza a violência e permite que ela escale para feminicídio.</p>
+          </div>
+        </div>
+        <div class="myth-card">
+          <div class="myth-top">
+            <span class="myth-badge">Mito</span>
+            <p>"Se ela não foi embora, é porque gosta ou quer ficar."</p>
+          </div>
+          <div class="myth-bottom">
+            <span class="truth-badge">Verdade</span>
+            <p>Sair de um relacionamento abusivo é um processo complexo, não uma decisão simples. Medo, dependência financeira, filhos, ameaças de morte e manipulação emocional travam a vítima. O momento de saída é o de maior risco de feminicídio.</p>
+          </div>
+        </div>
+        <div class="myth-card">
+          <div class="myth-top">
+            <span class="myth-badge">Mito</span>
+            <p>"Se ela não denunciou, não deve ser grave."</p>
+          </div>
+          <div class="myth-bottom">
+            <span class="truth-badge">Verdade</span>
+            <p>A maioria das vítimas não denuncia por medo de represálias, vergonha, desconfiança no sistema ou dependência emocional do agressor. A ausência de denúncia não reduz a gravidade. Como testemunha, você pode denunciar sem depender da vítima.</p>
+          </div>
+        </div>
+        <div class="myth-card">
+          <div class="myth-top">
+            <span class="myth-badge">Mito</span>
+            <p>"Não é da minha conta — não quero me envolver."</p>
+          </div>
+          <div class="myth-bottom">
+            <span class="truth-badge">Verdade</span>
+            <p>Quando uma mulher é assassinada, vizinhos e colegas frequentemente afirmam que sabiam dos sinais mas não fizeram nada. A omissão tem peso moral e, em alguns casos, jurídico. Você não precisa ser herói — basta ligar para o 190 ou 180.</p>
+          </div>
+        </div>
+        <div class="myth-card">
+          <div class="myth-top">
+            <span class="myth-badge">Mito</span>
+            <p>"Se eu chamar a polícia, vou piorar a situação depois que eles forem embora."</p>
+          </div>
+          <div class="myth-bottom">
+            <span class="truth-badge">Verdade</span>
+            <p>A intervenção policial registra o ocorrido, viabiliza medidas protetivas e documenta o histórico de violência. Mesmo que o agressor retorne, cada registro é uma evidência que fortalece o caso judicial da vítima. Ligar é sempre melhor do que silenciar.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ASPECTO LEGAL DA TESTEMUNHA -->
+  <section class="content-section" style="background: var(--white);">
+    <div class="container">
+      <div class="section-header centered">
+        <span class="section-tag">Seus Direitos e Deveres</span>
+        <h2 class="section-title">O papel <em>legal</em> da testemunha</h2>
+        <p class="section-sub">Entender seus direitos e responsabilidades jurídicas ajuda a agir com mais segurança e efetividade.</p>
+      </div>
+
+      <div class="legal-grid">
+        <div class="legal-card">
+          <div class="legal-icon">📋</div>
+          <h4>Você pode denunciar anonimamente</h4>
+          <p>O canal <strong>180 (Central da Mulher)</strong> aceita denúncias sem identificação. Você não precisa dar nome, CPF ou qualquer dado pessoal para registrar uma denúncia de violência doméstica.</p>
+          <div class="legal-highlight">A denúncia anônima tem o mesmo valor para acionar o sistema de proteção.</div>
+        </div>
+        <div class="legal-card">
+          <div class="legal-icon">👩‍⚖️</div>
+          <h4>Depoimento de testemunha tem peso jurídico</h4>
+          <p>Se você presenciou agressões ou tem conhecimento direto dos fatos, seu depoimento em delegacia ou juízo é prova no processo penal. Testemunhas oculares são fundamentais em casos de violência doméstica.</p>
+          <div class="legal-highlight">Registrar BO como testemunha é voluntário, mas pode ser determinante para a condenação do agressor.</div>
+        </div>
+        <div class="legal-card">
+          <div class="legal-icon">🏥</div>
+          <h4>Profissionais de saúde têm obrigação legal</h4>
+          <p>Médicos, enfermeiros e profissionais de saúde que atendem vítimas de violência doméstica têm dever legal de comunicar o fato à autoridade policial ou ao Ministério Público (art. 19 da Lei Maria da Penha).</p>
+          <div class="legal-highlight">O sigilo médico não se aplica quando há risco de vida — a comunicação é dever, não opção.</div>
+        </div>
+        <div class="legal-card">
+          <div class="legal-icon">👨‍🏫</div>
+          <h4>Professores e educadores também têm esse dever</h4>
+          <p>Profissionais de educação que suspeitem ou tomem conhecimento de violência sofrida por alunos ou responsáveis devem comunicar ao Conselho Tutelar (se envolver crianças) ou às autoridades competentes.</p>
+          <div class="legal-highlight">Comunicar não é "se meter" — é cumprir um dever legal de proteção.</div>
+        </div>
+        <div class="legal-card">
+          <div class="legal-icon">🔒</div>
+          <h4>Proteção para a testemunha</h4>
+          <p>Em casos de ameaça ao denunciante, o Brasil conta com o <strong>Programa de Proteção a Testemunhas (PROVITA)</strong>, que garante segurança para quem colabora com investigações de crimes graves, incluindo feminicídio.</p>
+          <div class="legal-highlight">Ligue para o 181 (Disque Denúncia) — anonimato garantido, possibilidade de recompensa.</div>
+        </div>
+        <div class="legal-card">
+          <div class="legal-icon">📱</div>
+          <h4>Evidências digitais têm validade jurídica</h4>
+          <p>Prints de conversas, gravações de áudio, vídeos de câmeras de segurança e registros de chamadas têm valor como prova quando devidamente documentados com data, hora e contexto, e entregues à autoridade policial.</p>
+          <div class="legal-highlight">Guarde tudo em nuvem antes de entregar à polícia — nunca apague as evidências originais.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMO APOIAR EMOCIONALMENTE -->
+  <section class="content-section">
+    <div class="container">
+      <div class="section-header centered">
+        <span class="section-tag">Apoio Humano</span>
+        <h2 class="section-title">Como <em>apoiar</em> a vítima</h2>
+        <p class="section-sub">Além de denunciar, o suporte emocional de quem está ao redor é uma das ferramentas mais poderosas contra a violência.</p>
+      </div>
+
+      <div class="steps-container">
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-num">01</div>
+            <div class="step-title-wrap">
+              <h3>Acredite e valide</h3>
+              <span class="step-priority urgent">O mais importante</span>
+            </div>
+          </div>
+          <div class="step-body">
+            <p>A primeira coisa que uma vítima precisa ouvir é que acreditam nela. Agressores sistematicamente minam a autoconfiança da vítima, fazendo-a duvidar da própria percepção.</p>
+            <ul class="step-list">
+              <li>Diga: "Eu acredito em você" — e diga isso com convicção</li>
+              <li>Diga: "Isso não é culpa sua" — e repita sempre que necessário</li>
+              <li>Não questione detalhes como se estivesse investigando</li>
+              <li>Não minimize: "foi só uma vez", "todos brigam assim"</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-num">02</div>
+            <div class="step-title-wrap">
+              <h3>Mantenha a presença — não some</h3>
+              <span class="step-priority urgent">Essencial</span>
+            </div>
+          </div>
+          <div class="step-body">
+            <p>O isolamento é uma das principais ferramentas de controle do agressor. Sua presença constante é uma forma de resistência ativa.</p>
+            <ul class="step-list">
+              <li>Mande mensagem regularmente: "Estou aqui, pensei em você"</li>
+              <li>Marque encontros que não dependam do agressor saber — cafezinhos, almoços</li>
+              <li>Se ela sumir por um tempo, não a culpe — tente retomar o contato</li>
+              <li>Deixe claro: sua ajuda não tem prazo de validade nem condição</li>
+            </ul>
+            <div class="step-tip">
+              <span>💡</span>
+              <span>Pesquisas mostram que mulheres com rede de apoio ativa têm muito mais chances de sair de relacionamentos abusivos com segurança.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-num">03</div>
+            <div class="step-title-wrap">
+              <h3>Ajude a criar um plano de segurança</h3>
+              <span class="step-priority important">Prático</span>
+            </div>
+          </div>
+          <div class="step-body">
+            <p>Quando ela estiver pronta, ajude a construir um plano concreto de saída segura. Isso pode levar semanas ou meses — respeite o tempo dela.</p>
+            <ul class="step-list">
+              <li>Ofereça-se para guardar documentos (RG, certidões, escrituras) na sua casa</li>
+              <li>Ajude a separar uma "bolsa de emergência" discreta com itens essenciais</li>
+              <li>Combine uma palavra-código para acionar ajuda rapidamente</li>
+              <li>Pesquise juntas: DEAM mais próxima, casas abrigo, Defensoria Pública</li>
+              <li>Ofereça sua casa como refúgio temporário, se puder e for seguro</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-num">04</div>
+            <div class="step-title-wrap">
+              <h3>Cuide de você também</h3>
+              <span class="step-priority moderate">Não se esqueça</span>
+            </div>
+          </div>
+          <div class="step-body">
+            <p>Apoiar alguém em situação de violência pode ser emocionalmente exaustivo. Cuidar de si não é egoísmo — é necessidade para que você possa continuar ajudando.</p>
+            <ul class="step-list">
+              <li>Reconheça seus próprios limites e comunique-os com cuidado</li>
+              <li>Busque apoio se você mesmo(a) estiver sobrecarregado(a)</li>
+              <li>Lembre: você não pode salvar alguém que ainda não está pronto(a) para ser salvo(a) — e isso não é falha sua</li>
+              <li>CVV 188 — apoio emocional também para quem apoia</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AUTOCUIDADO EMOCIONAL -->
+  <section class="content-section" style="background: var(--dark);">
+    <div class="container" style="display: flex; justify-content: center;">
+      <div class="self-care-box">
+        <h3>💜 Uma nota sobre trauma vicário</h3>
+        <p>Presenciar ou tomar conhecimento de violência grave pode te afetar mais do que você imagina. Pesadelos, ansiedade, sensação de impotência e culpa são reações normais de quem se importa.</p>
+        <p>Se você está sentindo isso, procure apoio. O <strong style="color:#d4aaff">CVV (188)</strong> está disponível 24 horas. O <strong style="color:#d4aaff">Mapa do Acolhimento</strong> oferece psicólogas voluntárias em todo o Brasil. Você não precisa carregar isso sozinho(a).</p>
+        <p>Sua saúde emocional importa tanto quanto a ajuda que você oferece. As duas coisas não são opostas — cuidar de você é o que permite que você continue cuidando.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- REDE DE SUPORTE RÁPIDO -->
+  <section class="content-section">
+    <div class="container">
+      <div class="section-header centered">
+        <span class="section-tag">Canais de Ação</span>
+        <h2 class="section-title">Para onde <em>ligar ou ir</em></h2>
+      </div>
+      <div class="support-grid">
+        <div class="support-card">
+          <div class="sup-icon">🚔</div>
+          <h4>190 — Polícia Militar</h4>
+          <p>Para emergências em andamento. A polícia vai ao local. Funciona 24 horas, todos os dias.</p>
+          <div class="sup-contact">Gratuito · Não precisa se identificar</div>
+        </div>
+        <div class="support-card">
+          <div class="sup-icon">📞</div>
+          <h4>180 — Central da Mulher</h4>
+          <p>Denúncias, orientações e encaminhamento. Atende testemunhas. Sigiloso e gratuito 24h.</p>
+          <div class="sup-contact">Gratuito · Anonimato garantido</div>
+        </div>
+        <div class="support-card">
+          <div class="sup-icon">📢</div>
+          <h4>181 — Disque Denúncia</h4>
+          <p>Canal anônimo para denunciar crimes, inclusive violência doméstica e feminicídio. Sem identificação.</p>
+          <div class="sup-contact">Gratuito · Anônimo</div>
+        </div>
+        <div class="support-card">
+          <div class="sup-icon">🏛️</div>
+          <h4>DEAM</h4>
+          <p>Delegacia Especializada de Atendimento à Mulher. Aceita denúncias de terceiros e depoimentos de testemunhas.</p>
+          <div class="sup-contact">Busque: "DEAM + sua cidade"</div>
+        </div>
+        <div class="support-card">
+          <div class="sup-icon">🧒</div>
+          <h4>136 — Conselho Tutelar</h4>
+          <p>Quando há crianças envolvidas na situação de violência. Atua para proteger menores em situação de risco.</p>
+          <div class="sup-contact">Gratuito · 24 horas</div>
+        </div>
+        <div class="support-card">
+          <div class="sup-icon">❤️</div>
+          <h4>188 — CVV</h4>
+          <p>Apoio emocional para qualquer pessoa em crise — inclusive testemunhas de violência que precisam de escuta.</p>
+          <div class="sup-contact">Gratuito · 24 horas · cvv.org.br</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo">🌸 Voz & Vida</div>
+          <p>Você não precisa ser herói. Precisa saber o que fazer. E agora você sabe.</p>
+        </div>
+        <div class="footer-links-col">
+          <h5>Páginas</h5>
+          <ul>
+            <li><a href="direitos.html">Direitos da Mulher</a></li>
+            <li><a href="tecnologia.html">Tecnologia</a></li>
+            <li><a href="casos.html">Casos</a></li>
+            <li><a href="passos.html">O Que Fazer</a></li>
+            <li><a href="testemunha.html">Fui Testemunha</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h5>Emergência</h5>
+          <ul>
+            <li>☎ 190 — Polícia Militar</li>
+            <li>☎ 180 — Central da Mulher</li>
+            <li>☎ 181 — Disque Denúncia</li>
+            <li>☎ 188 — CVV</li>
+            <li>☎ 136 — Conselho Tutelar</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2024 Voz & Vida — Projeto de Extensão Acadêmica | ADS × Direito</p>
+        <p class="footer-disclaimer">Em caso de perigo imediato, ligue 190.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
